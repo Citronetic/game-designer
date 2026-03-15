@@ -1,0 +1,16 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Reference materials (not part of the plugin)
+get-shit-done/
+game-implement-process/
+
+# GSD planning artifacts
+.planning/
+
+# Game Forge project working directories
+.gf/
+
+# Node
+node_modules/
