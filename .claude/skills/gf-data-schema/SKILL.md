@@ -12,8 +12,8 @@ Generate data schemas from your completed system designs. The schema generator r
 ## Step 1: Load Project State
 
 Run:
-```
-!`node bin/gf-tools.cjs init progress`
+```bash
+node bin/gf-tools.cjs init progress
 ```
 
 - If `project_exists` is `false`: Display "No Game Forge project found. Run `/gf:new-game` to start." **Stop.**
@@ -24,8 +24,8 @@ Run:
   - **If `AUTO_MODE`:** Skip prerequisite check (the auto pipeline just completed system design stage).
 
 Load configuration:
-```
-!`node bin/gf-tools.cjs config-get language`
+```bash
+node bin/gf-tools.cjs config-get language
 ```
 
 Store as `LANGUAGE`.
@@ -35,8 +35,8 @@ Store as `LANGUAGE`.
 **If `AUTO_MODE`:** Skip session granularity calculation and split prompt entirely. Auto mode always uses a single pass regardless of system count. Proceed directly to Step 2.
 
 Run:
-```
-!`node bin/gf-tools.cjs system-design system-status`
+```bash
+node bin/gf-tools.cjs system-design system-status
 ```
 
 Count confirmed systems from the response.
@@ -51,8 +51,8 @@ Adjust generation strategy:
 ## Step 2: Check Freeze Status and Existing Schema
 
 Run:
-```
-!`node bin/gf-tools.cjs data-schema freeze-status`
+```bash
+node bin/gf-tools.cjs data-schema freeze-status
 ```
 
 **If frozen (`frozen: true`):**
@@ -66,13 +66,13 @@ Display: "Schema is frozen for balance work. To modify, you must unfreeze first 
 
 **Check for existing schema:**
 Check if `.gf/stages/03a-data-schema/tables.md` exists:
-```
-!`ls .gf/stages/03a-data-schema/tables.md 2>/dev/null && echo "EXISTS" || echo "NOT_FOUND"`
+```bash
+ls .gf/stages/03a-data-schema/tables.md 2>/dev/null && echo "EXISTS" || echo "NOT_FOUND"
 ```
 
 Also check if `.gf/stages/03a-data-schema/REVIEW.md` exists (quality gate already run):
-```
-!`ls .gf/stages/03a-data-schema/REVIEW.md 2>/dev/null && echo "EXISTS" || echo "NOT_FOUND"`
+```bash
+ls .gf/stages/03a-data-schema/REVIEW.md 2>/dev/null && echo "EXISTS" || echo "NOT_FOUND"
 ```
 
 ## Step 3: Branch Based on State
@@ -92,8 +92,8 @@ If the user explicitly says they want to review, go to Step 5. If the user expli
 ### 4a. Extract 7A Anchors
 
 Run:
-```
-!`node bin/gf-tools.cjs data-schema extract-anchors`
+```bash
+node bin/gf-tools.cjs data-schema extract-anchors
 ```
 
 Parse the JSON response. Display anchor summary:
@@ -103,8 +103,8 @@ List each anchor briefly: table name, purpose, source system.
 
 ### 4b. Update State
 
-```
-!`node bin/gf-tools.cjs state update data_schema in_progress`
+```bash
+node bin/gf-tools.cjs state update data_schema in_progress
 ```
 
 ### 4c. Spawn Schema Generator Agent
@@ -162,15 +162,15 @@ You are generating the complete data schema from Stage 2 system designs.
 After the agent completes:
 
 Run CSV export to sync:
-```
-!`node bin/gf-tools.cjs data-schema export-csv`
+```bash
+node bin/gf-tools.cjs data-schema export-csv
 ```
 
 Display: "Schema generated with **{files_written}** CSV config files. Review the output, then run `/gf:data-schema` again to validate and freeze."
 
 Show progress:
-```
-!`node bin/gf-tools.cjs progress full`
+```bash
+node bin/gf-tools.cjs progress full
 ```
 
 ## Step 5: Run Quality Gate
@@ -179,14 +179,14 @@ Display: "Running schema quality gate..."
 
 ### 5a. Extract Anchors for Traceability
 
-```
-!`node bin/gf-tools.cjs data-schema extract-anchors`
+```bash
+node bin/gf-tools.cjs data-schema extract-anchors
 ```
 
 ### 5b. Run Validation
 
-```
-!`node bin/gf-tools.cjs data-schema validate`
+```bash
+node bin/gf-tools.cjs data-schema validate
 ```
 
 Display validation results (valid/invalid, any issues found).
@@ -255,8 +255,8 @@ Read and display `.gf/stages/03a-data-schema/REVIEW.md` contents to the user.
 - Display: "Schema validated. Run `/gf:data-schema` again to freeze the schema before balance work."
 
 Show progress:
-```
-!`node bin/gf-tools.cjs progress full`
+```bash
+node bin/gf-tools.cjs progress full
 ```
 
 ## Step 6: Freeze Gate
@@ -264,9 +264,18 @@ Show progress:
 **If `AUTO_MODE`:**
 - Skip the freeze summary display and confirmation prompt.
 - Auto-confirm freeze. Run freeze command, update state, commit.
-- Run freeze: `!`node bin/gf-tools.cjs data-schema freeze``
-- Update state to complete: `!`node bin/gf-tools.cjs state update data_schema complete``
-- Commit schema files: `!`node bin/gf-tools.cjs commit "feat(data-schema): freeze schema v1" --files .gf/stages/03a-data-schema/``
+- Run freeze:
+```bash
+node bin/gf-tools.cjs data-schema freeze
+```
+- Update state to complete:
+```bash
+node bin/gf-tools.cjs state update data_schema complete
+```
+- Commit schema files:
+```bash
+node bin/gf-tools.cjs commit "feat(data-schema): freeze schema v1" --files .gf/stages/03a-data-schema/
+```
 - Display: "Data schema frozen (auto mode). Proceeding to next stage..."
 - Skip to Step 7.
 
@@ -300,18 +309,18 @@ Ask user: "**Confirm schema freeze?** Balance work (Stage 3B) requires a frozen 
 **If user confirms (yes):**
 
 Run freeze:
-```
-!`node bin/gf-tools.cjs data-schema freeze`
+```bash
+node bin/gf-tools.cjs data-schema freeze
 ```
 
 Update state to complete:
-```
-!`node bin/gf-tools.cjs state update data_schema complete`
+```bash
+node bin/gf-tools.cjs state update data_schema complete
 ```
 
 Commit schema files:
-```
-!`node bin/gf-tools.cjs commit "feat(data-schema): freeze schema v1" --files .gf/stages/03a-data-schema/`
+```bash
+node bin/gf-tools.cjs commit "feat(data-schema): freeze schema v1" --files .gf/stages/03a-data-schema/
 ```
 
 Display: "Schema frozen. Ready for Stage 3B numerical balance. Run `/gf:balance`."
@@ -322,8 +331,8 @@ Display: "Schema not frozen. You can continue reviewing and modifying the schema
 
 ## Step 7: Display Progress
 
-```
-!`node bin/gf-tools.cjs progress full`
+```bash
+node bin/gf-tools.cjs progress full
 ```
 
 ## Constraints
