@@ -51,6 +51,11 @@
  *   production status               Get production stage status
  *   production set-status           Set production stage status
  *   production validate-traceability Validate spec IDs against registry
+ *   video check-ffmpeg        Check ffmpeg/ffprobe availability
+ *   video probe --file <p>    Get video metadata (duration, fps, resolution)
+ *   video extract --file <p>  Extract frames at configured fps [--fps 0.5]
+ *   video plan --duration <s> Plan frame extraction budget [--fps 0.5] [--max-frames 40]
+ *   video cleanup --dir <p>   Remove extracted frame directory
  *   commit <msg> --files ...  Git commit helper
  *
  * Usage: node bin/gf-tools.cjs <command> [args] [--dir <path>]
@@ -116,6 +121,15 @@ function getProduction() {
     productionMod = require('./lib/production.cjs');
   }
   return productionMod;
+}
+
+// Lazy-load video module
+let videoMod = null;
+function getVideo() {
+  if (!videoMod) {
+    videoMod = require('./lib/video.cjs');
+  }
+  return videoMod;
 }
 
 // ---- Arg parsing helpers ------------------------------------------------------
@@ -204,6 +218,11 @@ Commands:
   production status               Get production stage status
   production set-status           Set production stage status
   production validate-traceability Validate spec IDs against registry
+  video check-ffmpeg       Check ffmpeg/ffprobe availability
+  video probe --file <p>   Get video metadata (duration, fps, resolution)
+  video extract --file <p> Extract frames at configured fps [--fps 0.5]
+  video plan --duration <s> Plan frame extraction budget [--fps 0.5] [--max-frames 40]
+  video cleanup --dir <p>  Remove extracted frame directory
   commit <msg> --files ... Git commit helper`;
 
 // ---- Main router --------------------------------------------------------------
@@ -848,6 +867,104 @@ async function main() {
         }
         default:
           error('Unknown production subcommand. Use: production extract-art-anchors|extract-ui-anchors|extract-7c|status|set-status|validate-traceability');
+      }
+      break;
+    }
+
+    // ---- video ----
+    case 'video': {
+      const subcommand = parsed._[1];
+      const video = getVideo();
+
+      switch (subcommand) {
+        case 'check-ffmpeg': {
+          try {
+            const available = video.checkFfmpeg();
+            output({ available });
+          } catch (e) {
+            error(`check-ffmpeg failed: ${e.message}`);
+          }
+          break;
+        }
+        case 'probe': {
+          const filePath = parsed.flags.file;
+          if (!filePath) {
+            error('Usage: video probe --file <path>');
+            break;
+          }
+          const ext = path.extname(filePath).toLowerCase();
+          if (!video.SUPPORTED_EXTENSIONS.has(ext)) {
+            error('Unsupported video format. Supported: .mp4, .mov, .avi, .webm, .mkv');
+            break;
+          }
+          try {
+            const result = video.probeVideo(path.resolve(filePath));
+            output(result);
+          } catch (e) {
+            error(`probe failed: ${e.message}`);
+          }
+          break;
+        }
+        case 'extract': {
+          const filePath = parsed.flags.file;
+          if (!filePath) {
+            error('Usage: video extract --file <path> [--fps 0.5] [--output-dir <path>]');
+            break;
+          }
+          const fps = parsed.flags.fps ? parseFloat(parsed.flags.fps) : undefined;
+          let outputDir = parsed.flags['output-dir'];
+          if (!outputDir) {
+            try {
+              const projectDir = getProjectDir(parsed.flags);
+              outputDir = path.join(projectDir, '.gf', '.tmp', 'video-frames');
+            } catch {
+              outputDir = path.join(path.dirname(path.resolve(filePath)), '.tmp', 'video-frames');
+            }
+          }
+          try {
+            const opts = {};
+            if (fps !== undefined) { opts.fps = fps; }
+            const result = video.extractFrames(path.resolve(filePath), outputDir, opts);
+            output(result);
+          } catch (e) {
+            error(`extract failed: ${e.message}`);
+          }
+          break;
+        }
+        case 'plan': {
+          const durationStr = parsed.flags.duration;
+          if (!durationStr) {
+            error('Usage: video plan --duration <seconds> [--fps 0.5] [--max-frames 40]');
+            break;
+          }
+          const duration = parseFloat(durationStr);
+          const opts = {};
+          if (parsed.flags.fps) { opts.fps = parseFloat(parsed.flags.fps); }
+          if (parsed.flags['max-frames']) { opts.maxFrames = parseInt(parsed.flags['max-frames'], 10); }
+          try {
+            const result = video.planFrameExtraction(duration, opts);
+            output(result);
+          } catch (e) {
+            error(`plan failed: ${e.message}`);
+          }
+          break;
+        }
+        case 'cleanup': {
+          const dirPath = parsed.flags.dir;
+          if (!dirPath) {
+            error('Usage: video cleanup --dir <path>');
+            break;
+          }
+          try {
+            const result = video.cleanupFrames(path.resolve(dirPath));
+            output(result);
+          } catch (e) {
+            error(`cleanup failed: ${e.message}`);
+          }
+          break;
+        }
+        default:
+          error('Unknown video subcommand. Use: video check-ffmpeg|probe|extract|plan|cleanup');
       }
       break;
     }
