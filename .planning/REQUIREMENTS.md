@@ -15,8 +15,8 @@
 
 ### Auto Pipeline
 
-- [ ] **AUTO-01**: User can run `/gf-new-game --auto @reference.md` (or inline text, or video file) to start an automatic pipeline that runs all 5 stages without intermediate user interaction
-- [ ] **AUTO-02**: Auto mode detects genre, language, and project name from the provided input material without asking the user
+- [x] **AUTO-01**: User can run `/gf-new-game --auto @reference.md` (or inline text, or video file) to start an automatic pipeline that runs all 5 stages without intermediate user interaction
+- [x] **AUTO-02**: Auto mode detects genre, language, and project name from the provided input material without asking the user
 - [x] **AUTO-03**: Auto mode runs concept generation (Stage 1) using the provided reference as the AI's primary context — no questioning rounds, AI generates all 15 chapters autonomously
 - [x] **AUTO-04**: Auto mode chains Stage 2 (system design) automatically after concept, proposing and designing all systems without user confirmation
 - [x] **AUTO-05**: Auto mode chains Stage 3A (data schema) and Stage 3B (balance) automatically, including schema freeze
@@ -51,8 +51,8 @@
 | VDEO-03 | Phase 7 | Complete |
 | VDEO-04 | Phase 7 | Complete |
 | VDEO-05 | Phase 7 | Complete |
-| AUTO-01 | Phase 8 | Pending |
-| AUTO-02 | Phase 8 | Pending |
+| AUTO-01 | Phase 8 | Complete |
+| AUTO-02 | Phase 8 | Complete |
 | AUTO-03 | Phase 8 | Complete |
 | AUTO-04 | Phase 8 | Complete |
 | AUTO-05 | Phase 8 | Complete |
