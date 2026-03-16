@@ -17,8 +17,8 @@ Guide the user through creating a new Game Forge project. Collects game concept 
 ### Step 1: Check Environment
 
 Run:
-```
-!`node bin/gf-tools.cjs init new-game`
+```bash
+node bin/gf-tools.cjs init new-game
 ```
 
 Parse the JSON result for `project_exists` and `has_git`.
@@ -60,30 +60,30 @@ Check `$ARGUMENTS` for the `--auto` flag.
 When a video file is detected as input:
 
 1. **Check ffmpeg availability:**
-   ```
-   !`node bin/gf-tools.cjs video check-ffmpeg`
-   ```
+```bash
+node bin/gf-tools.cjs video check-ffmpeg
+```
    If `available` is false, inform the user:
    > ffmpeg is required for video analysis but was not found on your system.
    > Install it with: `brew install ffmpeg` (macOS) or `apt install ffmpeg` (Linux)
    **Stop here.**
 
 2. **Probe video metadata:**
-   ```
-   !`node bin/gf-tools.cjs video probe --file {video_path}`
-   ```
+```bash
+node bin/gf-tools.cjs video probe --file {video_path}
+```
    Store the result (duration, fps, width, height, codec).
 
 3. **Plan frame extraction:**
-   ```
-   !`node bin/gf-tools.cjs video plan --duration {duration} --fps {user_fps_or_0.5} --max-frames 40`
-   ```
+```bash
+node bin/gf-tools.cjs video plan --duration {duration} --fps {user_fps_or_0.5} --max-frames 40
+```
    If user provided `--fps` flag, pass that value through. Otherwise use the default 0.5.
 
 4. **Extract frames:**
-   ```
-   !`node bin/gf-tools.cjs video extract --file {video_path} --fps {extractFps}`
-   ```
+```bash
+node bin/gf-tools.cjs video extract --file {video_path} --fps {extractFps}
+```
    Store the outputDir and files list from the result.
 
 5. **Delegate to video analyzer agent:**
@@ -97,9 +97,9 @@ When a video file is detected as input:
    Wait for the agent to complete.
 
 6. **Cleanup frames:**
-   ```
-   !`node bin/gf-tools.cjs video cleanup --dir {outputDir}`
-   ```
+```bash
+node bin/gf-tools.cjs video cleanup --dir {outputDir}
+```
 
 7. **Read analysis result:**
    Read `.gf/VIDEO-ANALYSIS.md` and use its content as the reference material for project setup.
@@ -148,8 +148,8 @@ If the user doesn't explicitly say no, default to yes.
 
 Run the scaffold command with collected values:
 
-```
-!`node bin/gf-tools.cjs scaffold project --name "{name}" --language "{language}" --genre "{genre}" --platform "{platform}" --monetization "{monetization}" --entry-path "{entry_path}" --git-tracking "{git_tracking}" --dir .`
+```bash
+node bin/gf-tools.cjs scaffold project --name "{name}" --language "{language}" --genre "{genre}" --platform "{platform}" --monetization "{monetization}" --entry-path "{entry_path}" --git-tracking "{git_tracking}" --dir .
 ```
 
 Replace placeholders with the actual values from Steps 2-4. The `entry_path` value should be either `scratch` or `reference`.
@@ -218,9 +218,9 @@ Display: "Starting auto pipeline: concept -> systems -> schema -> balance -> pro
    Determine included chapters (those not marked SKIP).
 
 2. Update state:
-   ```
-   !`node bin/gf-tools.cjs state update "Concept" "in_progress"`
-   ```
+```bash
+node bin/gf-tools.cjs state update "Concept" "in_progress"
+```
 
 3. Spawn concept interviewer agent via Agent tool:
    Agent: `.claude/agents/gf-concept-interviewer.md`
@@ -239,9 +239,9 @@ Display: "Starting auto pipeline: concept -> systems -> schema -> balance -> pro
    - AUTO MODE: auto-resolve must-ask items with AI judgment, log decisions in REVIEW.md
 
 5. Mark complete:
-   ```
-   !`node bin/gf-tools.cjs state update "Concept" "complete"`
-   ```
+```bash
+node bin/gf-tools.cjs state update "Concept" "complete"
+```
 
 Display: "[1/5] Concept stage complete."
 
@@ -251,14 +251,14 @@ Display: "[1/5] Concept stage complete."
    Read summaries from `.gf/stages/01-concept/ch*.md` frontmatter.
 
 2. Propose and auto-confirm system list:
-   ```
-   !`node bin/gf-tools.cjs system-design propose-systems`
-   ```
+```bash
+node bin/gf-tools.cjs system-design propose-systems
+```
    Parse response. Build system list proposal based on concept content, genre, and rule IDs (same logic as interactive SKILL.md Step 3).
-   ```
-   !`node bin/gf-tools.cjs system-design confirm-systems --data '{...}'`
-   !`node bin/gf-tools.cjs state update "System Design" "in_progress"`
-   ```
+```bash
+node bin/gf-tools.cjs system-design confirm-systems --data '{...}'
+node bin/gf-tools.cjs state update "System Design" "in_progress"
+```
 
 3. Spawn system designer agent via Agent tool:
    Agent: `.claude/agents/gf-system-designer.md`
@@ -269,9 +269,9 @@ Display: "[1/5] Concept stage complete."
    - AUTO MODE instructions: no AskUserQuestion, design all systems autonomously, use best judgment for must-ask topics
 
 4. Run traceability check:
-   ```
-   !`node bin/gf-tools.cjs system-design trace-check`
-   ```
+```bash
+node bin/gf-tools.cjs system-design trace-check
+```
 
 5. Spawn quality reviewer:
    Agent: `.claude/agents/gf-system-quality-reviewer.md`
@@ -285,19 +285,19 @@ Display: "[1/5] Concept stage complete."
    Write `.gf/stages/02-system-design/CONTENT-RHYTHM.md`
 
 7. Mark complete:
-   ```
-   !`node bin/gf-tools.cjs state update "System Design" "complete"`
-   ```
+```bash
+node bin/gf-tools.cjs state update "System Design" "complete"
+```
 
 Display: "[2/5] System design stage complete."
 
 #### Stage 3A: Auto Data Schema
 
 1. Extract 7A anchors:
-   ```
-   !`node bin/gf-tools.cjs data-schema extract-anchors`
-   !`node bin/gf-tools.cjs state update data_schema in_progress`
-   ```
+```bash
+node bin/gf-tools.cjs data-schema extract-anchors
+node bin/gf-tools.cjs state update data_schema in_progress
+```
 
 2. Spawn schema generator agent:
    Agent: `.claude/agents/gf-schema-generator.md`
@@ -308,38 +308,38 @@ Display: "[2/5] System design stage complete."
    - AUTO MODE: generate complete schema in single pass
 
 3. Export CSV:
-   ```
-   !`node bin/gf-tools.cjs data-schema export-csv`
-   ```
+```bash
+node bin/gf-tools.cjs data-schema export-csv
+```
 
 4. Run validation and spawn quality reviewer:
-   ```
-   !`node bin/gf-tools.cjs data-schema validate`
-   ```
+```bash
+node bin/gf-tools.cjs data-schema validate
+```
    Agent: `.claude/agents/gf-schema-quality-reviewer.md`
    Prompt includes:
    - Schema files, quality criteria, anchor data, validation results
    - AUTO MODE: auto-resolve must-ask items
 
 5. Re-export CSV after auto-fixes:
-   ```
-   !`node bin/gf-tools.cjs data-schema export-csv`
-   ```
+```bash
+node bin/gf-tools.cjs data-schema export-csv
+```
 
 6. Auto-freeze:
-   ```
-   !`node bin/gf-tools.cjs data-schema freeze`
-   !`node bin/gf-tools.cjs state update data_schema complete`
-   ```
+```bash
+node bin/gf-tools.cjs data-schema freeze
+node bin/gf-tools.cjs state update data_schema complete
+```
 
 Display: "[3/5] Data schema frozen."
 
 #### Stage 3B: Auto Balance
 
 1. Extract 7B inputs:
-   ```
-   !`node bin/gf-tools.cjs balance extract-7b`
-   ```
+```bash
+node bin/gf-tools.cjs balance extract-7b
+```
 
 2. Spawn balance generator agent:
    Agent: `.claude/agents/gf-balance-generator.md`
@@ -350,9 +350,9 @@ Display: "[3/5] Data schema frozen."
    - AUTO MODE: generate all balance docs and update CSV in single pass
 
 3. Spawn quality reviewer:
-   ```
-   !`node bin/gf-tools.cjs balance extract-7b`
-   ```
+```bash
+node bin/gf-tools.cjs balance extract-7b
+```
    (Re-extract for traceability)
    Agent: `.claude/agents/gf-balance-quality-reviewer.md`
    Prompt includes:
@@ -360,26 +360,26 @@ Display: "[3/5] Data schema frozen."
    - AUTO MODE: auto-resolve must-ask items
 
 4. Verify freeze integrity:
-   ```
-   !`node bin/gf-tools.cjs balance validate-freeze`
-   ```
+```bash
+node bin/gf-tools.cjs balance validate-freeze
+```
 
 5. Mark complete:
-   ```
-   !`node bin/gf-tools.cjs state patch balance_status complete`
-   !`node bin/gf-tools.cjs state update balance complete`
-   ```
+```bash
+node bin/gf-tools.cjs state patch balance_status complete
+node bin/gf-tools.cjs state update balance complete
+```
 
 Display: "[4/5] Balance stage complete."
 
 #### Stage 4: Auto Production Specs
 
 1. Extract anchors and contracts:
-   ```
-   !`node bin/gf-tools.cjs production extract-art-anchors`
-   !`node bin/gf-tools.cjs production extract-ui-anchors`
-   !`node bin/gf-tools.cjs production extract-7c`
-   ```
+```bash
+node bin/gf-tools.cjs production extract-art-anchors
+node bin/gf-tools.cjs production extract-ui-anchors
+node bin/gf-tools.cjs production extract-7c
+```
 
 2. Spawn art spec generator:
    Agent: `.claude/agents/gf-art-spec-generator.md`
@@ -404,15 +404,15 @@ Display: "[4/5] Balance stage complete."
    AUTO MODE: auto-resolve must-ask items
 
 6. Validate traceability:
-   ```
-   !`node bin/gf-tools.cjs production validate-traceability --ids '[...]'`
-   ```
+```bash
+node bin/gf-tools.cjs production validate-traceability --ids '[...]'
+```
 
 7. Mark complete:
-   ```
-   !`node bin/gf-tools.cjs production set-status --value complete`
-   !`node bin/gf-tools.cjs state update production complete`
-   ```
+```bash
+node bin/gf-tools.cjs production set-status --value complete
+node bin/gf-tools.cjs state update production complete
+```
 
 Display: "[5/5] Production specs complete."
 
@@ -424,48 +424,48 @@ Build a dynamic, data-driven summary by scanning the actual generated files and 
 
 Count the actual files generated in each stage using Bash commands:
 
-```
-!`ls .gf/stages/01-concept/ch*.md 2>/dev/null | wc -l`
+```bash
+ls .gf/stages/01-concept/ch*.md 2>/dev/null | wc -l
 ```
 Store the result as `concept_count`.
 
-```
-!`ls .gf/stages/02-system-design/systems/*.md 2>/dev/null | wc -l`
+```bash
+ls .gf/stages/02-system-design/systems/*.md 2>/dev/null | wc -l
 ```
 Store the result as `system_count`. Note: this may include CONTENT-RHYTHM.md if it is inside systems/. If CONTENT-RHYTHM.md is inside systems/, subtract 1 from the count.
 
 Check for content rhythm:
-```
-!`[ -f .gf/stages/02-system-design/CONTENT-RHYTHM.md ] && echo "yes" || echo "no"`
+```bash
+[ -f .gf/stages/02-system-design/CONTENT-RHYTHM.md ] && echo "yes" || echo "no"
 ```
 Store as `has_content_rhythm`.
 
-```
-!`ls .gf/stages/03a-data-schema/*.md 2>/dev/null | wc -l`
+```bash
+ls .gf/stages/03a-data-schema/*.md 2>/dev/null | wc -l
 ```
 Store as `schema_count`.
 
-```
-!`ls .gf/stages/03a-data-schema/configs/*.csv 2>/dev/null | wc -l`
+```bash
+ls .gf/stages/03a-data-schema/configs/*.csv 2>/dev/null | wc -l
 ```
 Store as `csv_count`.
 
-```
-!`ls .gf/stages/03b-balance/*.md 2>/dev/null | wc -l`
+```bash
+ls .gf/stages/03b-balance/*.md 2>/dev/null | wc -l
 ```
 Store as `balance_count`.
 
 Check production specs:
-```
-!`[ -f .gf/stages/04-production/ART-SPEC.md ] && echo "yes" || echo "no"`
-!`[ -f .gf/stages/04-production/UI-SPEC.md ] && echo "yes" || echo "no"`
-!`[ -f .gf/stages/04-production/TECH-SPEC.md ] && echo "yes" || echo "no"`
+```bash
+[ -f .gf/stages/04-production/ART-SPEC.md ] && echo "yes" || echo "no"
+[ -f .gf/stages/04-production/UI-SPEC.md ] && echo "yes" || echo "no"
+[ -f .gf/stages/04-production/TECH-SPEC.md ] && echo "yes" || echo "no"
 ```
 Count how many of these 3 exist. Store as `production_count`.
 
 Check for video analysis:
-```
-!`[ -f .gf/VIDEO-ANALYSIS.md ] && echo "yes" || echo "no"`
+```bash
+[ -f .gf/VIDEO-ANALYSIS.md ] && echo "yes" || echo "no"
 ```
 Store as `has_video_analysis`.
 
