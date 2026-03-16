@@ -1,7 +1,7 @@
 ---
 name: gf-new-game
 description: Create a new Game Forge project with guided setup
-argument-hint: "[--auto]"
+argument-hint: "[--auto] [--fps N]"
 disable-model-invocation: true
 allowed-tools: [Read, Bash, Write, Agent, AskUserQuestion]
 ---
@@ -30,18 +30,85 @@ Parse the JSON result for `project_exists` and `has_git`.
 Check `$ARGUMENTS` for the `--auto` flag.
 
 **If `--auto` is present (automatic mode):**
-- Expect the user to provide a game concept document (pasted text, a file path, or a description).
-- Read and analyze the provided material.
-- Extract: project name, genre, language, platform, monetization model.
-- Use smart defaults for any missing values:
-  - Language: detect from the user's writing language, or default to the language the concept document is written in
-  - Genre: infer from content
-  - Platform: default to "mobile" if unclear
-  - Monetization: default to "free-to-play" if unclear
-- Skip to **Step 4** with extracted values.
+- Parse the remaining arguments for input material. The input can be:
+  a. **Inline text** -- a game description pasted directly
+  b. **Reference file** -- a path to a .md or .txt file (preceded by @)
+  c. **Video file** -- a path to a .mp4, .mov, .avi, .webm, or .mkv file
+
+- **Detect input type:** Check if the input path ends with a video extension (.mp4, .mov, .avi, .webm, .mkv).
+
+- **If VIDEO input detected:** Go to **Step 2A: Video Analysis**.
+- **If TEXT or FILE input:** Continue with existing text/file behavior:
+  - Read and analyze the provided material.
+  - Extract: project name, genre, language, platform, monetization model.
+  - Use smart defaults for any missing values:
+    - Language: detect from the user's writing language, or default to the language the concept document is written in
+    - Genre: infer from content
+    - Platform: default to "mobile" if unclear
+    - Monetization: default to "free-to-play" if unclear
+  - Skip to **Step 4** with extracted values.
+
+- Also check `$ARGUMENTS` for the `--fps` flag. If present, store the value for use in Step 2A. Default: 0.5 (1 frame every 2 seconds).
 
 **If `--auto` is NOT present (interactive mode):**
 - Continue to **Step 3**.
+
+### Step 2A: Video Analysis
+
+When a video file is detected as input:
+
+1. **Check ffmpeg availability:**
+   ```
+   !`node bin/gf-tools.cjs video check-ffmpeg`
+   ```
+   If `available` is false, inform the user:
+   > ffmpeg is required for video analysis but was not found on your system.
+   > Install it with: `brew install ffmpeg` (macOS) or `apt install ffmpeg` (Linux)
+   **Stop here.**
+
+2. **Probe video metadata:**
+   ```
+   !`node bin/gf-tools.cjs video probe --file {video_path}`
+   ```
+   Store the result (duration, fps, width, height, codec).
+
+3. **Plan frame extraction:**
+   ```
+   !`node bin/gf-tools.cjs video plan --duration {duration} --fps {user_fps_or_0.5} --max-frames 40`
+   ```
+   If user provided `--fps` flag, pass that value through. Otherwise use the default 0.5.
+
+4. **Extract frames:**
+   ```
+   !`node bin/gf-tools.cjs video extract --file {video_path} --fps {extractFps}`
+   ```
+   Store the outputDir and files list from the result.
+
+5. **Delegate to video analyzer agent:**
+   Spawn the `gf-video-analyzer` agent with these parameters:
+   - frameDir: the outputDir from step 4
+   - sampleIndices: from step 3's plan result
+   - videoMeta: {duration, fps, width, height, codec, filename: basename of video_path}
+   - outputPath: `.gf/VIDEO-ANALYSIS.md` (use the project .gf/ directory)
+   - templatePath: `.claude/skills/gf-new-game/references/video-analysis-template.md`
+
+   Wait for the agent to complete.
+
+6. **Cleanup frames:**
+   ```
+   !`node bin/gf-tools.cjs video cleanup --dir {outputDir}`
+   ```
+
+7. **Read analysis result:**
+   Read `.gf/VIDEO-ANALYSIS.md` and use its content as the reference material for project setup.
+   Extract: project name (from Game Overview), genre, language (default to English unless video content suggests otherwise), platform, monetization.
+   Use smart defaults for any values not inferable from the video analysis:
+   - Language: default to English
+   - Genre: infer from the Game Overview and Core Gameplay Mechanics sections
+   - Platform: default to "mobile" if unclear
+   - Monetization: default to "free-to-play" if unclear
+
+8. **Continue to Step 4** with extracted values (same as text/file --auto path).
 
 ### Step 3: Collect Project Configuration
 
@@ -128,3 +195,7 @@ Display a success message:
 - All design documents will be written in the user's chosen language.
 - The genre hint influences later stages but doesn't lock the project into a rigid structure.
 - The `--auto` flag is useful for quickly bootstrapping from existing game concept documents.
+- Video input supported: .mp4, .mov, .avi, .webm, .mkv files are analyzed using ffmpeg + Claude vision
+- Video analysis requires ffmpeg to be installed on the system (brew install ffmpeg)
+- The `--fps` flag controls frame extraction density (default: 1 frame every 2 seconds = 0.5 fps)
+- Video analysis produces .gf/VIDEO-ANALYSIS.md which serves as the reference material for concept generation
