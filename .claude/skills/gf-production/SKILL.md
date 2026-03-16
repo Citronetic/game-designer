@@ -12,8 +12,8 @@ Generate art, UI/UX, and tech specification documents from your completed system
 ## Step 1: Load Project State and Check Prerequisites
 
 Run:
-```
-!`node bin/gf-tools.cjs init progress`
+```bash
+node bin/gf-tools.cjs init progress
 ```
 
 - If `project_exists` is `false`: Display "No Game Forge project found. Run `/gf:new-game` to start." **Stop.**
@@ -24,9 +24,9 @@ Run:
   - **If `AUTO_MODE`:** Skip prerequisite check (the auto pipeline just completed balance stage).
 
 Load configuration:
-```
-!`node bin/gf-tools.cjs config-get language`
-!`node bin/gf-tools.cjs config-get genre`
+```bash
+node bin/gf-tools.cjs config-get language
+node bin/gf-tools.cjs config-get genre
 ```
 
 Store as `LANGUAGE` and `GENRE`.
@@ -43,8 +43,8 @@ If no flag is provided, all three specs are generated.
 ## Step 2: Detect State and Branch
 
 Run:
-```
-!`node bin/gf-tools.cjs production status`
+```bash
+node bin/gf-tools.cjs production status
 ```
 
 **If `AUTO_MODE`:** Always take the Generate path (not_started -> Step 3), then automatically continue through Review (Step 5) and Complete (Step 6) without stopping. The entire generate-review-complete pipeline runs in one pass.
@@ -63,8 +63,8 @@ Branch based on the returned `status` value:
 ### 3a. Extract Art Anchors
 
 Run:
-```
-!`node bin/gf-tools.cjs production extract-art-anchors`
+```bash
+node bin/gf-tools.cjs production extract-art-anchors
 ```
 
 Parse the JSON response. Store art anchors for the art generator agent.
@@ -72,8 +72,8 @@ Parse the JSON response. Store art anchors for the art generator agent.
 ### 3b. Extract UI Anchors
 
 Run:
-```
-!`node bin/gf-tools.cjs production extract-ui-anchors`
+```bash
+node bin/gf-tools.cjs production extract-ui-anchors
 ```
 
 Parse the JSON response. Store UI anchors for the UI generator agent.
@@ -81,8 +81,8 @@ Parse the JSON response. Store UI anchors for the UI generator agent.
 ### 3c. Extract 7C Contracts
 
 Run:
-```
-!`node bin/gf-tools.cjs production extract-7c`
+```bash
+node bin/gf-tools.cjs production extract-7c
 ```
 
 Parse the JSON response. Store 7C contracts for the tech generator agent.
@@ -92,8 +92,8 @@ Parse the JSON response. Store 7C contracts for the tech generator agent.
 **If `AUTO_MODE`:** Skip session granularity calculation and split suggestion entirely. Auto mode always generates all three specs in a single pass regardless of system count. Proceed directly to Step 4.
 
 Run:
-```
-!`node bin/gf-tools.cjs system-design system-status`
+```bash
+node bin/gf-tools.cjs system-design system-status
 ```
 
 Count confirmed systems from the response.
@@ -116,8 +116,8 @@ Determine which agents to spawn based on flags:
 - `--tech-only`: spawn only the tech spec generator
 
 Gather system file list:
-```
-!`ls .gf/stages/02-system-design/systems/*.md`
+```bash
+ls .gf/stages/02-system-design/systems/*.md
 ```
 
 ### 4a. Spawn Art Spec Generator (unless --ui-only or --tech-only)
@@ -229,8 +229,8 @@ You are generating a complete technical requirement specification from Stage 2 s
 After all spawned agents complete:
 
 Update production status to in_progress:
-```
-!`node bin/gf-tools.cjs state patch production_status in_progress`
+```bash
+node bin/gf-tools.cjs state patch production_status in_progress
 ```
 
 Display summary of what was generated:
@@ -240,8 +240,8 @@ Display summary of what was generated:
 Display: "Production specifications generated. Review the output, then run `/gf:production` again to validate with the quality gate."
 
 Show progress:
-```
-!`node bin/gf-tools.cjs progress full`
+```bash
+node bin/gf-tools.cjs progress full
 ```
 
 ## Step 5: Review and Quality Gate
@@ -313,8 +313,8 @@ Read and display `.gf/stages/04-production/REVIEW.md` contents to the user.
 - Go to **Step 6**.
 
 Show progress:
-```
-!`node bin/gf-tools.cjs progress full`
+```bash
+node bin/gf-tools.cjs progress full
 ```
 
 ## Step 6: Mark Complete and Verify
@@ -322,23 +322,23 @@ Show progress:
 ### 6a. Run Traceability Validation
 
 Collect all system IDs referenced across the three spec files. Run traceability validation:
-```
-!`node bin/gf-tools.cjs production validate-traceability --ids '[...]'`
+```bash
+node bin/gf-tools.cjs production validate-traceability --ids '[...]'
 ```
 
 If `valid` is `false`: Display "WARNING: Traceability issues found. Some spec references do not match Stage 2 system IDs. This must be resolved before completion." Display the issues list. **Stop.**
 
 ### 6b. Update State
 
-```
-!`node bin/gf-tools.cjs production set-status --value complete`
-!`node bin/gf-tools.cjs state update production complete`
+```bash
+node bin/gf-tools.cjs production set-status --value complete
+node bin/gf-tools.cjs state update production complete
 ```
 
 ### 6c. Commit Spec Files
 
-```
-!`node bin/gf-tools.cjs commit "feat(production): complete Stage 4 production specifications" --files .gf/stages/04-production/`
+```bash
+node bin/gf-tools.cjs commit "feat(production): complete Stage 4 production specifications" --files .gf/stages/04-production/
 ```
 
 **If `AUTO_MODE`:**
@@ -349,8 +349,8 @@ Display: "Stage 4 Production Specifications complete. The full 4-stage game desi
 
 ## Step 7: Display Progress
 
-```
-!`node bin/gf-tools.cjs progress full`
+```bash
+node bin/gf-tools.cjs progress full
 ```
 
 ## Constraints
