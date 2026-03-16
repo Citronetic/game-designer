@@ -16,8 +16,8 @@ Display the current Game Forge project progress with an ASCII pipeline visualiza
 ### Step 1: Check Project
 
 Run:
-```
-!`node bin/gf-tools.cjs init progress`
+```bash
+node bin/gf-tools.cjs init progress
 ```
 
 Parse the JSON result.
@@ -27,8 +27,8 @@ Parse the JSON result.
 ### Step 2: Display Full Progress
 
 Run:
-```
-!`node bin/gf-tools.cjs progress full`
+```bash
+node bin/gf-tools.cjs progress full
 ```
 
 Display the full output to the user. This includes:
