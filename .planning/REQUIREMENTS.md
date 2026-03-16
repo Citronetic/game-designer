@@ -17,11 +17,11 @@
 
 - [ ] **AUTO-01**: User can run `/gf-new-game --auto @reference.md` (or inline text, or video file) to start an automatic pipeline that runs all 5 stages without intermediate user interaction
 - [ ] **AUTO-02**: Auto mode detects genre, language, and project name from the provided input material without asking the user
-- [ ] **AUTO-03**: Auto mode runs concept generation (Stage 1) using the provided reference as the AI's primary context — no questioning rounds, AI generates all 15 chapters autonomously
-- [ ] **AUTO-04**: Auto mode chains Stage 2 (system design) automatically after concept, proposing and designing all systems without user confirmation
-- [ ] **AUTO-05**: Auto mode chains Stage 3A (data schema) and Stage 3B (balance) automatically, including schema freeze
-- [ ] **AUTO-06**: Auto mode chains Stage 4 (production specs) automatically, generating all three spec types
-- [ ] **AUTO-07**: Quality gates in auto mode run but auto-approve — structural gaps are filled, creative decisions use AI's best judgment instead of blocking
+- [x] **AUTO-03**: Auto mode runs concept generation (Stage 1) using the provided reference as the AI's primary context — no questioning rounds, AI generates all 15 chapters autonomously
+- [x] **AUTO-04**: Auto mode chains Stage 2 (system design) automatically after concept, proposing and designing all systems without user confirmation
+- [x] **AUTO-05**: Auto mode chains Stage 3A (data schema) and Stage 3B (balance) automatically, including schema freeze
+- [x] **AUTO-06**: Auto mode chains Stage 4 (production specs) automatically, generating all three spec types
+- [x] **AUTO-07**: Quality gates in auto mode run but auto-approve — structural gaps are filled, creative decisions use AI's best judgment instead of blocking
 - [ ] **AUTO-08**: Auto mode produces a final summary showing all generated files, total document count, and any decisions the AI made autonomously
 - [ ] **AUTO-09**: After auto completion, user can review any stage output and re-run individual stages interactively if they want to adjust
 
@@ -53,11 +53,11 @@
 | VDEO-05 | Phase 7 | Complete |
 | AUTO-01 | Phase 8 | Pending |
 | AUTO-02 | Phase 8 | Pending |
-| AUTO-03 | Phase 8 | Pending |
-| AUTO-04 | Phase 8 | Pending |
-| AUTO-05 | Phase 8 | Pending |
-| AUTO-06 | Phase 8 | Pending |
-| AUTO-07 | Phase 8 | Pending |
+| AUTO-03 | Phase 8 | Complete |
+| AUTO-04 | Phase 8 | Complete |
+| AUTO-05 | Phase 8 | Complete |
+| AUTO-06 | Phase 8 | Complete |
+| AUTO-07 | Phase 8 | Complete |
 | AUTO-08 | Phase 9 | Pending |
 | AUTO-09 | Phase 9 | Pending |
 
