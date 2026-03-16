@@ -27,6 +27,8 @@ Load configuration:
 
 Store these as `GENRE`, `LANGUAGE`, and `ENTRY_PATH`.
 
+**Auto-mode detection:** Check `$ARGUMENTS` for `--auto` flag. Store as `AUTO_MODE` (true/false). When `AUTO_MODE` is true, all user interaction is skipped and the entire concept stage runs in a single autonomous pass.
+
 Load chapter status:
 ```
 !`node bin/gf-tools.cjs concept chapter-status`
@@ -35,6 +37,8 @@ Load chapter status:
 This returns per-chapter completion status (pending, in_progress, complete, skipped).
 
 ## Step 1.5: Determine Session Granularity
+
+**If `AUTO_MODE`:** Skip session granularity calculation entirely. Auto mode processes ALL genre-included chapters in a single agent spawn. Proceed directly to Step 2.
 
 Check planned system complexity from genre:
 - Read genre profile from .claude/skills/gf-concept/references/ to estimate expected systems
@@ -64,6 +68,8 @@ The genre profile defines:
 - **Depth Multiplier**: word count scaling factor
 
 ## Step 3: Calculate Next Batch
+
+**If `AUTO_MODE`:** Set the batch to ALL genre-included chapters at once (all 15 or however many the genre includes). Do not break into sessions. Skip Step 4 (session context display) and proceed directly to Step 5 with the full chapter list.
 
 From chapter status (Step 1) and genre profile (Step 2), determine the next 2-3 chapters that are:
 1. **Included** by the genre profile (not SKIP)
@@ -134,11 +140,22 @@ You are working on a game concept document. Here is your assignment:
 
 **IMPORTANT constraints to include in the Task prompt:**
 - Fixed chapter order: always sequential, never reorder
-- 2-3 chapters per session batch, never more
+- 2-3 chapters per session batch, never more (unless AUTO_MODE, which sends all chapters at once)
 - Rule IDs assigned DURING generation, not post-hoc
 - Genre adaptation by chapter skip/include, not section-level rewriting
 - Use STRONG PROPOSALS: "I recommend X because Y. Agree?" -- NOT passive "What do you think about X?"
 - Must-ask topics (gameplay, monetization, audience, scope) must be thoroughly explored with the user, NEVER skipped or auto-filled
+
+**If `AUTO_MODE`, add the following to the Task prompt context:**
+```
+**AUTO MODE -- No user interaction:**
+- Do NOT use AskUserQuestion. Do NOT ask the user anything.
+- Generate ALL assigned chapters autonomously in a single pass.
+- For must-ask topics (gameplay, monetization, audience, scope): use your best judgment based on the reference material and genre conventions. Make strong, opinionated choices.
+- Use the reference material (from .gf/PROJECT.md) as the primary input for all creative decisions.
+- Skip the open-ended "tell me about your game" conversation. Go directly to chapter generation.
+- Maintain the same output quality and structure as interactive mode.
+```
 
 ## Step 6: After Agent Completes (or All Chapters Done)
 
@@ -178,9 +195,19 @@ Run the concept stage quality gate.
   - Monetization model (Ch9/Ch10)
   - Target audience (Ch1)
   - Scope boundaries (Ch2)
+{IF AUTO_MODE:}
+**AUTO MODE:** For must-ask items, use AI best judgment instead of flagging for user decision. Apply your recommendation directly. Log what you decided in REVIEW.md under a new 'Auto-Resolved Decisions' section.
+{END IF}
 ```
 
 After quality gate completes:
+
+**If `AUTO_MODE`:**
+- Skip presenting REVIEW.md to user. Skip collecting user decisions.
+- Update state to complete: `!`node bin/gf-tools.cjs state update "Concept" "complete"``
+- Display: "Concept stage complete (auto mode). Proceeding to next stage..."
+
+**If NOT `AUTO_MODE`:**
 - Read and display `.gf/stages/01-concept/REVIEW.md` contents to the user.
 - **If REVIEW.md has "Needs User Decision" items:**
   - Present each decision to the user and collect their answers.
@@ -210,4 +237,5 @@ These rules are locked decisions and must never be violated:
 - **Inline rule IDs:** Rule IDs are assigned DURING chapter generation, never post-hoc
 - **Chapter-level genre adaptation:** Genre profiles skip/include entire chapters, not section-level rewriting
 - **Single quality gate:** Quality gate runs ONCE after ALL chapters are complete, not per-session
-- **Must-ask topics NEVER auto-filled:** Core gameplay (Ch3), monetization (Ch9/10), target audience (Ch1), and scope boundaries (Ch2) require explicit user input -- the quality gate must flag these if missing and never generate content for them
+- **Must-ask topics NEVER auto-filled (interactive mode):** Core gameplay (Ch3), monetization (Ch9/10), target audience (Ch1), and scope boundaries (Ch2) require explicit user input -- the quality gate must flag these if missing and never generate content for them
+- **Auto mode:** When `--auto` flag is present, all user interaction is skipped. Must-ask topics are resolved by AI judgment. Chapters are generated in a single batch, not across sessions. Quality gate auto-approves. The structural quality (rule IDs, genre adaptation, section completeness) is identical to interactive mode.

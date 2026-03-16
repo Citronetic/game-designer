@@ -17,7 +17,11 @@ Run:
 ```
 
 - If `project_exists` is `false`: Display "No Game Forge project found. Run `/gf:new-game` to start." **Stop.**
-- Check `stages.concept` -- if not `complete`: Display "Stage 2 requires the concept stage to be complete. Run `/gf:concept` first." **Stop.**
+
+**Auto-mode detection:** Check `$ARGUMENTS` for `--auto` flag. Store as `AUTO_MODE` (true/false). When `AUTO_MODE` is true, all user interaction is skipped and the entire system design stage runs in a single autonomous pass.
+
+- Check `stages.concept` -- if not `complete` **and NOT `AUTO_MODE`**: Display "Stage 2 requires the concept stage to be complete. Run `/gf:concept` first." **Stop.**
+  - **If `AUTO_MODE`:** Skip prerequisite check (the auto pipeline just completed concept stage).
 
 Load configuration:
 ```
@@ -28,6 +32,8 @@ Load configuration:
 Store these as `GENRE` and `LANGUAGE`.
 
 ## Step 1.5: Determine Session Granularity
+
+**If `AUTO_MODE`:** Skip session granularity calculation entirely. Auto mode designs ALL confirmed systems in a single pass. Proceed directly to Step 2.
 
 Run:
 ```
@@ -79,6 +85,13 @@ Based on the concept chapters, genre, and rule IDs, propose a tailored system li
 - **priority** -- P0 (must-have), P1 (should-have), P2 (nice-to-have)
 - **concept_sources** -- Which R_N_NN concept rule IDs this system will consume
 
+**If `AUTO_MODE`:**
+- Still run `propose-systems` CLI command to gather concept context.
+- Auto-generate the system list proposal (same logic as interactive mode).
+- Auto-confirm without user review: immediately run `confirm-systems` with the proposed list.
+- Skip user iteration. Proceed directly to designing all systems.
+
+**If NOT `AUTO_MODE`:**
 Present the proposal to the user:
 "Based on your concept, I propose these {N} systems for detailed design: ..."
 
@@ -100,13 +113,15 @@ Proceed to **Step 4**.
 
 ## Step 4: Calculate Next Batch
 
+**If `AUTO_MODE`:** Set the batch to ALL confirmed systems at once. Do not split into sessions. Proceed directly to Step 5 with the full system list.
+
 From system status (Step 2), find systems with status != `complete`.
 
 Pick the next 1-2 systems to design in this session, following priority order:
 1. P0 systems first, then P1, then P2
 2. Within the same priority: design systems that have fewer dependencies first (so later systems can reference completed ones)
 
-**Locked rule:** 1-2 systems per session, deep design pace. Never assign more than 2 systems in a single session.
+**Locked rule:** 1-2 systems per session, deep design pace. Never assign more than 2 systems in a single session (unless AUTO_MODE, which sends all systems at once).
 
 Calculate session number based on completed system count.
 
@@ -155,7 +170,7 @@ Maintain consistency: same resource names, same dependency references, same mech
 {END IF}
 
 **Constraints:**
-- 1-2 systems per session, deep design pace
+- 1-2 systems per session, deep design pace (unless AUTO_MODE, which sends all systems at once)
 - Use STRONG PROPOSALS: "I recommend X because Y. Agree?" -- NOT passive questioning
 - Rule IDs (RULE-{SYSTEM}-NNN) assigned DURING generation, never post-hoc
 - Must produce all 10 sections + 7A/7B/7C per system (Section 10 IS the 7C handoff)
@@ -164,6 +179,14 @@ Maintain consistency: same resource names, same dependency references, same mech
 - 7A: table names + purpose only (no field-level detail -- that's Stage 3A)
 - 7B: full 8 categories of numerical balance inputs
 - 7C (Section 10): full depth -- state machines >= 3 states, events with payloads, pseudo-code formulas, error codes, client/server split
+{IF AUTO_MODE:}
+**AUTO MODE -- No user interaction:**
+- Do NOT use AskUserQuestion. Do NOT ask the user anything.
+- Design ALL assigned systems autonomously in a single pass.
+- For must-ask topics (system boundaries, monetization, core mechanics, difficulty philosophy): use your best judgment based on the concept documents and genre conventions.
+- Make strong, opinionated design choices. Prioritize completeness and consistency.
+- Maintain the same output quality and depth as interactive mode (all 10 sections + 7A/7B/7C).
+{END IF}
 ```
 
 ## Step 6: After Agent Completes / All Systems Done
@@ -209,9 +232,18 @@ Run the system design quality gate.
   - Monetization model (ad placement, IAP products, revenue approach)
   - Core mechanic alternatives (multiple valid implementations)
   - Difficulty philosophy (accessibility vs challenge)
+{IF AUTO_MODE:}
+**AUTO MODE:** For must-ask items, use AI best judgment instead of flagging for user decision. Apply your recommendation directly. Log what you decided in REVIEW.md under a new 'Auto-Resolved Decisions' section.
+{END IF}
 ```
 
 After quality gate completes:
+
+**If `AUTO_MODE`:**
+- Skip presenting REVIEW.md to user. Skip collecting user decisions.
+- Proceed directly to **Step 7**.
+
+**If NOT `AUTO_MODE`:**
 - Read and display `.gf/stages/02-system-design/REVIEW.md` contents to the user.
 - **If REVIEW.md has "Needs User Decision" items:**
   - Present each decision to the user and collect their answers.
@@ -259,6 +291,10 @@ Update state to complete:
 !`node bin/gf-tools.cjs state update "System Design" "complete"`
 ```
 
+**If `AUTO_MODE`:**
+Display: "System design stage complete (auto mode). Proceeding to next stage..."
+
+**If NOT `AUTO_MODE`:**
 Display: "System design stage complete! All systems designed, quality gate passed, and content rhythm generated. Run `/gf:data-schema` to begin Stage 3A."
 
 ## Constraints
@@ -271,6 +307,7 @@ These rules are locked decisions and must never be violated:
 - **7A/7B/7C inline per system:** Each system file includes its own handoff sections. No separate aggregated handoff files
 - **Quality gate runs ONCE after ALL systems complete:** Not per-session, not per-system. One comprehensive review after everything is done
 - **Content rhythm generated AFTER quality gate passes:** Needs all system data to be finalized before aggregation
-- **Must-ask topics NEVER auto-filled:** System boundaries, monetization model, core mechanic alternatives, and difficulty philosophy always require explicit user input. The quality gate must flag these if unclear and never generate content for them
+- **Must-ask topics NEVER auto-filled (interactive mode):** System boundaries, monetization model, core mechanic alternatives, and difficulty philosophy always require explicit user input. The quality gate must flag these if unclear and never generate content for them
 - **Rule IDs assigned DURING generation:** RULE-{SYSTEM}-NNN IDs are embedded inline as the system spec is written, never added post-hoc
 - **Section 10 IS the 7C handoff:** Program contracts (state machines, events, formulas, error codes, client/server split) are Section 10, not a separate section
+- **Auto mode:** When `--auto` flag is present, all user interaction is skipped. Must-ask topics are resolved by AI judgment. Systems are designed in a single batch, not across sessions. System list is auto-proposed and auto-confirmed. Quality gate auto-approves. The structural quality (rule IDs, section depth, 7A/7B/7C completeness) is identical to interactive mode.

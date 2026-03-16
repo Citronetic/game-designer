@@ -165,11 +165,11 @@ Plans:
   3. All 5 stages chain automatically: concept generation produces all 15 chapters autonomously, system design proposes and designs all systems, schema and balance run with automatic schema freeze, and production specs generate all three types
   4. Quality gates run during auto mode but auto-approve all decisions -- structural gaps are filled and creative decisions use the AI's best judgment, producing the same structural quality as interactive mode
   5. All intermediate stage outputs are written to `.gf/` with the same file structure as interactive mode -- a project created via auto mode is indistinguishable in structure from one created interactively
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 08-01: TBD
-- [ ] 08-02: TBD
+- [ ] 08-01-PLAN.md -- Add --auto mode to all 5 stage SKILL.md files (concept, system-design, data-schema, balance, production) with auto-approve quality gates
+- [ ] 08-02-PLAN.md -- Wire gf-new-game --auto as master auto-chain orchestrator running all 5 stages sequentially
 
 ### Phase 9: Auto Completion and Review
 **Goal**: Users can see exactly what the auto pipeline produced, understand the AI's autonomous decisions, and selectively re-enter interactive mode to adjust any stage
@@ -198,5 +198,5 @@ Phases execute in numeric order: 7 -> 8 -> 9
 | 5. Numerical Balance | v0.1.0 | 3/3 | Complete | 2026-03-15 |
 | 6. Production Specs | v0.1.0 | 3/3 | Complete | 2026-03-15 |
 | 7. Video Analysis | v0.2.0 | 2/2 | Complete | 2026-03-16 |
-| 8. Auto Pipeline Engine | v0.2.0 | 0/? | Not started | - |
+| 8. Auto Pipeline Engine | v0.2.0 | 0/2 | Not started | - |
 | 9. Auto Completion and Review | v0.2.0 | 0/? | Not started | - |
