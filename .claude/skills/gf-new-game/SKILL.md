@@ -160,10 +160,9 @@ Replace placeholders with the actual values from Steps 2-4. The `entry_path` val
 - Add `.gf/` to the project's `.gitignore` file (create the file if it doesn't exist, or append to it).
 
 **If git_tracking is true AND has_git is true:**
-- Stage and commit the initial `.gf/` files:
-  ```
-  !`git add .gf/`
-  !`git commit -m "feat: initialize Game Forge project"`
+- Stage and commit the initial `.gf/` files using Bash tool:
+  ```bash
+  git add .gf/ && git commit -m "feat: initialize Game Forge project"
   ```
 
 ### Step 7: Entry Path Follow-up
@@ -535,10 +534,9 @@ Display the following, substituting actual values:
 
 Run: `node bin/gf-tools.cjs progress full` to display the progress visualization.
 
-If git tracking is enabled (check `.gf/config.json` field `git_tracking`), add a final git commit of all auto-generated files:
-```
-!`git add .gf/`
-!`git commit -m "feat: auto-generate complete game design documents"`
+If git tracking is enabled (check `.gf/config.json` field `git_tracking`), add a final git commit of all auto-generated files using Bash tool:
+```bash
+git add .gf/ && git commit -m "feat: auto-generate complete game design documents"
 ```
 
 ## Error Handling
