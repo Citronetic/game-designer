@@ -16,8 +16,8 @@ Restore full project context for a Game Forge session. Displays project status, 
 ### Step 1: Load Project Context
 
 Run:
-```
-!`node bin/gf-tools.cjs init resume`
+```bash
+node bin/gf-tools.cjs init resume
 ```
 
 Parse the JSON result.
@@ -51,8 +51,8 @@ Present the project overview:
 ### Step 3: Show Pipeline Visualization
 
 Run:
-```
-!`node bin/gf-tools.cjs progress pipeline`
+```bash
+node bin/gf-tools.cjs progress pipeline
 ```
 
 Display the ASCII pipeline output to the user. This shows all 5 stages with their current status indicators (o = Pending, * = In Progress, + = Complete).
@@ -90,8 +90,8 @@ Map stage names to commands:
 ### Step 6: Update Session Timestamp
 
 Run:
-```
-!`node bin/gf-tools.cjs state record-session`
+```bash
+node bin/gf-tools.cjs state record-session
 ```
 
 This records the current session start time for continuity tracking.
