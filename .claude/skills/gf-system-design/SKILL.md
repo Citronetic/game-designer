@@ -12,8 +12,8 @@ Expand your completed concept document into detailed per-system design files. Ea
 ## Step 1: Load Project State
 
 Run:
-```
-!`node bin/gf-tools.cjs init progress`
+```bash
+node bin/gf-tools.cjs init progress
 ```
 
 - If `project_exists` is `false`: Display "No Game Forge project found. Run `/gf:new-game` to start." **Stop.**
@@ -24,9 +24,9 @@ Run:
   - **If `AUTO_MODE`:** Skip prerequisite check (the auto pipeline just completed concept stage).
 
 Load configuration:
-```
-!`node bin/gf-tools.cjs config-get genre`
-!`node bin/gf-tools.cjs config-get language`
+```bash
+node bin/gf-tools.cjs config-get genre
+node bin/gf-tools.cjs config-get language
 ```
 
 Store these as `GENRE` and `LANGUAGE`.
@@ -36,8 +36,8 @@ Store these as `GENRE` and `LANGUAGE`.
 **If `AUTO_MODE`:** Skip session granularity calculation entirely. Auto mode designs ALL confirmed systems in a single pass. Proceed directly to Step 2.
 
 Run:
-```
-!`node bin/gf-tools.cjs system-design system-status`
+```bash
+node bin/gf-tools.cjs system-design system-status
 ```
 
 Count confirmed systems from the response.
@@ -54,8 +54,8 @@ Note: If no system list has been confirmed yet, skip this step. Session granular
 ## Step 2: Check System List Status
 
 Run:
-```
-!`node bin/gf-tools.cjs system-design system-status`
+```bash
+node bin/gf-tools.cjs system-design system-status
 ```
 
 The response is a JSON object with `{systemId: status}` entries. Determine the current state:
@@ -69,8 +69,8 @@ The response is a JSON object with `{systemId: status}` entries. Determine the c
 Read all concept chapter files from `.gf/stages/01-concept/ch*.md` to extract frontmatter summaries and rule IDs.
 
 Run:
-```
-!`node bin/gf-tools.cjs system-design propose-systems`
+```bash
+node bin/gf-tools.cjs system-design propose-systems
 ```
 
 This returns concept chapter summaries to inform the proposal.
@@ -100,13 +100,13 @@ Display each system with its type, priority, and which concept chapters it draws
 Ask the user to confirm, add, remove, or rename systems. Iterate until they approve the list.
 
 After confirmation, save the system list:
-```
-!`node bin/gf-tools.cjs system-design confirm-systems --data '{"systems":[{"name":"...","type":"...","priority":"...","concept_sources":["R_N_NN",...]},...]}' `
+```bash
+node bin/gf-tools.cjs system-design confirm-systems --data '{"systems":[{"name":"...","type":"...","priority":"...","concept_sources":["R_N_NN",...]},...]}' 
 ```
 
 Update state:
-```
-!`node bin/gf-tools.cjs state update "System Design" "in_progress"`
+```bash
+node bin/gf-tools.cjs state update "System Design" "in_progress"
 ```
 
 Proceed to **Step 4**.
@@ -192,8 +192,8 @@ Maintain consistency: same resource names, same dependency references, same mech
 ## Step 6: After Agent Completes / All Systems Done
 
 Re-check system status:
-```
-!`node bin/gf-tools.cjs system-design system-status`
+```bash
+node bin/gf-tools.cjs system-design system-status
 ```
 
 ### If all systems are complete:
@@ -201,8 +201,8 @@ Re-check system status:
 Display: "All systems designed. Running quality gate..."
 
 Run traceability check:
-```
-!`node bin/gf-tools.cjs system-design trace-check`
+```bash
+node bin/gf-tools.cjs system-design trace-check
 ```
 
 Display the traceability results (mapped count, unmapped rules, coverage percentage).
@@ -259,8 +259,8 @@ Calculate remaining system count.
 Display: "Session complete. {N} systems remaining across approximately {M} more sessions. Run `/gf:system-design` to continue."
 
 Show progress:
-```
-!`node bin/gf-tools.cjs progress full`
+```bash
+node bin/gf-tools.cjs progress full
 ```
 
 ## Step 7: Generate Content Rhythm and Complete
@@ -287,8 +287,8 @@ Write the content rhythm file:
 ```
 
 Update state to complete:
-```
-!`node bin/gf-tools.cjs state update "System Design" "complete"`
+```bash
+node bin/gf-tools.cjs state update "System Design" "complete"
 ```
 
 **If `AUTO_MODE`:**
