@@ -12,17 +12,17 @@ Co-create a complete game concept document through chapter-by-chapter guided que
 ## Step 1: Load Project State
 
 Run:
-```
-!`node bin/gf-tools.cjs init progress`
+```bash
+node bin/gf-tools.cjs init progress
 ```
 
 - If `project_exists` is `false`: Display "No Game Forge project found. Run `/gf:new-game` to start." **Stop.**
 
 Load configuration:
-```
-!`node bin/gf-tools.cjs config-get genre`
-!`node bin/gf-tools.cjs config-get language`
-!`node bin/gf-tools.cjs config-get entry_path`
+```bash
+node bin/gf-tools.cjs config-get genre
+node bin/gf-tools.cjs config-get language
+node bin/gf-tools.cjs config-get entry_path
 ```
 
 Store these as `GENRE`, `LANGUAGE`, and `ENTRY_PATH`.
@@ -30,8 +30,8 @@ Store these as `GENRE`, `LANGUAGE`, and `ENTRY_PATH`.
 **Auto-mode detection:** Check `$ARGUMENTS` for `--auto` flag. Store as `AUTO_MODE` (true/false). When `AUTO_MODE` is true, all user interaction is skipped and the entire concept stage runs in a single autonomous pass.
 
 Load chapter status:
-```
-!`node bin/gf-tools.cjs concept chapter-status`
+```bash
+node bin/gf-tools.cjs concept chapter-status
 ```
 
 This returns per-chapter completion status (pending, in_progress, complete, skipped).
@@ -58,7 +58,10 @@ Read the genre profile file:
 
 If `GENRE` is empty or not one of (casual, rpg, puzzle, strategy, idle, action):
 - Ask the user: "What genre best describes your game? Options: casual, rpg, puzzle, strategy, idle, action"
-- After selection, set it: `!`node bin/gf-tools.cjs config-set genre {selected}``
+- After selection, set it:
+```bash
+node bin/gf-tools.cjs config-set genre {selected}
+```
 - Then read the corresponding genre profile.
 
 The genre profile defines:
@@ -160,13 +163,13 @@ You are working on a game concept document. Here is your assignment:
 ## Step 6: After Agent Completes (or All Chapters Done)
 
 Update concept stage status:
-```
-!`node bin/gf-tools.cjs state update "Concept" "in_progress"`
+```bash
+node bin/gf-tools.cjs state update "Concept" "in_progress"
 ```
 
 Check if ALL genre-included chapters are now complete by re-running:
-```
-!`node bin/gf-tools.cjs concept chapter-status`
+```bash
+node bin/gf-tools.cjs concept chapter-status
 ```
 
 ### If all included chapters are complete:
@@ -204,7 +207,10 @@ After quality gate completes:
 
 **If `AUTO_MODE`:**
 - Skip presenting REVIEW.md to user. Skip collecting user decisions.
-- Update state to complete: `!`node bin/gf-tools.cjs state update "Concept" "complete"``
+- Update state to complete:
+```bash
+node bin/gf-tools.cjs state update "Concept" "complete"
+```
 - Display: "Concept stage complete (auto mode). Proceeding to next stage..."
 
 **If NOT `AUTO_MODE`:**
@@ -214,7 +220,10 @@ After quality gate completes:
   - Apply their decisions to the relevant chapter files.
   - Re-run the quality gate to verify all issues are resolved.
 - **If all checks pass (no user decisions needed):**
-  - Update state to complete: `!`node bin/gf-tools.cjs state update "Concept" "complete"``
+  - Update state to complete:
+```bash
+node bin/gf-tools.cjs state update "Concept" "complete"
+```
   - Display: "Concept stage complete! Run `/gf:system-design` to begin Stage 2."
 
 ### If more chapters remain:
@@ -224,8 +233,8 @@ Calculate remaining chapter count.
 Display: "Session complete. {N} chapters remaining across {M} more sessions. Run `/gf:concept` to continue."
 
 Show progress:
-```
-!`node bin/gf-tools.cjs progress full`
+```bash
+node bin/gf-tools.cjs progress full
 ```
 
 ## Constraints
