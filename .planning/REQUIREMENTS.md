@@ -22,8 +22,8 @@
 - [x] **AUTO-05**: Auto mode chains Stage 3A (data schema) and Stage 3B (balance) automatically, including schema freeze
 - [x] **AUTO-06**: Auto mode chains Stage 4 (production specs) automatically, generating all three spec types
 - [x] **AUTO-07**: Quality gates in auto mode run but auto-approve — structural gaps are filled, creative decisions use AI's best judgment instead of blocking
-- [ ] **AUTO-08**: Auto mode produces a final summary showing all generated files, total document count, and any decisions the AI made autonomously
-- [ ] **AUTO-09**: After auto completion, user can review any stage output and re-run individual stages interactively if they want to adjust
+- [x] **AUTO-08**: Auto mode produces a final summary showing all generated files, total document count, and any decisions the AI made autonomously
+- [x] **AUTO-09**: After auto completion, user can review any stage output and re-run individual stages interactively if they want to adjust
 
 ## Future Requirements
 
@@ -58,8 +58,8 @@
 | AUTO-05 | Phase 8 | Complete |
 | AUTO-06 | Phase 8 | Complete |
 | AUTO-07 | Phase 8 | Complete |
-| AUTO-08 | Phase 9 | Pending |
-| AUTO-09 | Phase 9 | Pending |
+| AUTO-08 | Phase 9 | Complete |
+| AUTO-09 | Phase 9 | Complete |
 
 **Coverage:**
 - v0.2.0 requirements: 14 total

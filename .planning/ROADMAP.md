@@ -168,8 +168,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 08-01-PLAN.md -- Add --auto mode to all 5 stage SKILL.md files (concept, system-design, data-schema, balance, production) with auto-approve quality gates
-- [ ] 08-02-PLAN.md -- Wire gf-new-game --auto as master auto-chain orchestrator running all 5 stages sequentially
+- [x] 08-01-PLAN.md -- Add --auto mode to all 5 stage SKILL.md files (concept, system-design, data-schema, balance, production) with auto-approve quality gates
+- [x] 08-02-PLAN.md -- Wire gf-new-game --auto as master auto-chain orchestrator running all 5 stages sequentially
 
 ### Phase 9: Auto Completion and Review
 **Goal**: Users can see exactly what the auto pipeline produced, understand the AI's autonomous decisions, and selectively re-enter interactive mode to adjust any stage
@@ -179,10 +179,10 @@ Plans:
   1. After auto mode completes, user sees a comprehensive summary listing: all generated files organized by stage, total document count, and every key decision the AI made autonomously (genre detected, systems proposed, balance strategies chosen, creative calls made)
   2. User can pick any completed stage and re-run it interactively using existing commands (`/gf-concept`, `/gf-system-design`, etc.) -- the auto-generated project loads correctly and the interactive flow works as if the user had created it manually
   3. Re-running a stage interactively overwrites auto-generated output for that stage while preserving all other stages the user is satisfied with
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 09-01: TBD
+- [ ] 09-01-PLAN.md -- Enhance Step 10 with dynamic file listing, document counts, autonomous decision log from REVIEW.md files, and interactive re-entry documentation
 
 ## Progress
 
@@ -198,5 +198,5 @@ Phases execute in numeric order: 7 -> 8 -> 9
 | 5. Numerical Balance | v0.1.0 | 3/3 | Complete | 2026-03-15 |
 | 6. Production Specs | v0.1.0 | 3/3 | Complete | 2026-03-15 |
 | 7. Video Analysis | v0.2.0 | 2/2 | Complete | 2026-03-16 |
-| 8. Auto Pipeline Engine | v0.2.0 | 0/2 | Not started | - |
-| 9. Auto Completion and Review | v0.2.0 | 0/? | Not started | - |
+| 8. Auto Pipeline Engine | v0.2.0 | 2/2 | Complete | 2026-03-16 |
+| 9. Auto Completion and Review | v0.2.0 | 0/1 | Not started | - |
