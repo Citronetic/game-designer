@@ -10,8 +10,8 @@ allowed-tools: [Read, Bash]
 ## Prerequisites
 
 Run:
-```
-!`node bin/gf-tools.cjs init progress`
+```bash
+node bin/gf-tools.cjs init progress
 ```
 
 - If `project_exists` is `false`: Display "No Game Forge project found. Run `/gf:new-game` to start." **Stop.**
@@ -22,15 +22,15 @@ Run:
 ### Data Schema CSV Export
 
 Check if data schema tables exist:
-```
-!`ls .gf/stages/03a-data-schema/tables.md 2>/dev/null && echo "EXISTS" || echo "NOT_FOUND"`
+```bash
+ls .gf/stages/03a-data-schema/tables.md 2>/dev/null && echo "EXISTS" || echo "NOT_FOUND"
 ```
 
 **If tables.md exists** (data_schema stage is `in_progress` or `complete`):
 
 Run CSV export:
-```
-!`node bin/gf-tools.cjs data-schema export-csv`
+```bash
+node bin/gf-tools.cjs data-schema export-csv
 ```
 
 Display: "Exported **{files_written}** CSV config files to `.gf/stages/03a-data-schema/configs/`."
@@ -50,8 +50,8 @@ Additional export formats (PDF, markdown bundle, structured data packages) will 
 
 ## Current Status
 
-```
-!`node bin/gf-tools.cjs progress full`
+```bash
+node bin/gf-tools.cjs progress full
 ```
 
 Display the progress output to the user.
