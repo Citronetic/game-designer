@@ -561,3 +561,7 @@ If git tracking is enabled (check `.gf/config.json` field `git_tracking`), add a
 - Quality gates auto-approve in auto mode but still validate structural quality
 - All output is written to the same .gf/ directory structure as interactive mode
 - After auto pipeline, user can re-run any stage interactively to make adjustments
+- Step 10 summary is dynamic -- it scans .gf/ to show actual file counts and reads REVIEW.md files for autonomous decision log
+- After auto pipeline, all stages are marked 'complete' in STATE.md. Running a stage command interactively (e.g., `/gf:concept`) will detect the complete state and jump to the quality gate for review. The user can then decide to accept, fix issues, or regenerate specific chapters/systems.
+- To re-run data-schema or balance interactively after auto mode, the schema freeze must be lifted first: `node bin/gf-tools.cjs data-schema unfreeze`. This is mentioned in the Step 10 summary.
+- Re-running a stage interactively overwrites only that stage's output files. Downstream stages (if already generated) are not automatically re-run -- the user should re-run downstream stages manually if upstream changes affect them.
