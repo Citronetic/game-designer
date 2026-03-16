@@ -17,7 +17,11 @@ Run:
 ```
 
 - If `project_exists` is `false`: Display "No Game Forge project found. Run `/gf:new-game` to start." **Stop.**
-- Check `stages.balance` -- if not `complete`: Display "Stage 4 requires the balance stage to be complete. Run `/gf:balance` first." **Stop.**
+
+**Auto-mode detection:** Check `$ARGUMENTS` for `--auto` flag. Store as `AUTO_MODE` (true/false). When `AUTO_MODE` is true, all user interaction is skipped and the entire production stage runs in a single autonomous pass.
+
+- Check `stages.balance` -- if not `complete` **and NOT `AUTO_MODE`**: Display "Stage 4 requires the balance stage to be complete. Run `/gf:balance` first." **Stop.**
+  - **If `AUTO_MODE`:** Skip prerequisite check (the auto pipeline just completed balance stage).
 
 Load configuration:
 ```
@@ -34,12 +38,16 @@ Parse command arguments for optional flags:
 
 If no flag is provided, all three specs are generated.
 
+**If `AUTO_MODE`:** Ignore `--art-only`, `--ui-only`, `--tech-only` flags. Auto mode always generates all three specs.
+
 ## Step 2: Detect State and Branch
 
 Run:
 ```
 !`node bin/gf-tools.cjs production status`
 ```
+
+**If `AUTO_MODE`:** Always take the Generate path (not_started -> Step 3), then automatically continue through Review (Step 5) and Complete (Step 6) without stopping. The entire generate-review-complete pipeline runs in one pass.
 
 Branch based on the returned `status` value:
 
@@ -80,6 +88,8 @@ Run:
 Parse the JSON response. Store 7C contracts for the tech generator agent.
 
 ### 3d. Determine Session Granularity
+
+**If `AUTO_MODE`:** Skip session granularity calculation and split suggestion entirely. Auto mode always generates all three specs in a single pass regardless of system count. Proceed directly to Step 4.
 
 Run:
 ```
@@ -246,6 +256,9 @@ Read and display a brief summary of what was generated:
 
 ### 5b. Ask User to Review
 
+**If `AUTO_MODE`:** Skip review summary display and approval prompt. Proceed directly to Step 5c (quality gate).
+
+**If NOT `AUTO_MODE`:**
 Ask user: "Review the production specifications and approve to run the quality gate, or request specific adjustments."
 - If user requests adjustments: note the feedback, re-run the relevant generator (Step 4) with the feedback added to the agent prompt
 - If user approves (or says "continue", "approve", "ok", "yes"): proceed to Step 5c
@@ -276,10 +289,18 @@ node bin/gf-tools.cjs production validate-traceability --ids '[...]'
 - Run cross-spec consistency checks (art-UI asset binding, tech coverage, priority alignment)
 - Run traceability validation via production validate-traceability CLI command
 - Write REVIEW.md to .gf/stages/04-production/REVIEW.md
+{IF AUTO_MODE:}
+**AUTO MODE:** For must-ask items, use AI best judgment instead of flagging for user decision. Apply your recommendation directly. Log what you decided in REVIEW.md under a new 'Auto-Resolved Decisions' section.
+{END IF}
 ```
 
 ### 5d. After Quality Gate
 
+**If `AUTO_MODE`:**
+- Skip presenting REVIEW.md to user. Skip collecting user decisions.
+- Proceed directly to Step 6 (mark complete).
+
+**If NOT `AUTO_MODE`:**
 Read and display `.gf/stages/04-production/REVIEW.md` contents to the user.
 
 **If REVIEW.md has "Needs User Decision" items:**
@@ -320,6 +341,10 @@ If `valid` is `false`: Display "WARNING: Traceability issues found. Some spec re
 !`node bin/gf-tools.cjs commit "feat(production): complete Stage 4 production specifications" --files .gf/stages/04-production/`
 ```
 
+**If `AUTO_MODE`:**
+Display: "Production specs complete (auto mode). All stages finished."
+
+**If NOT `AUTO_MODE`:**
 Display: "Stage 4 Production Specifications complete. The full 4-stage game design pipeline is now operational."
 
 ## Step 7: Display Progress
@@ -341,3 +366,4 @@ These rules are locked decisions and must never be violated:
 - **State-driven 3-way branching:** Orchestrator uses production status to determine flow: generate (not_started), review (in_progress), complete (complete). Each invocation picks up where the previous left off.
 - **Section 10 is the 7C handoff:** Tech spec extracts from Section 10 headers ("## 10"), NOT "## 7C". This is a locked decision from Phase 3 system design.
 - **Sequential agent spawning:** Agents are spawned one after another (not in parallel) to allow later agents to cross-reference earlier specs (e.g., UI spec can reference ART-SPEC.md if it exists).
+- **Auto mode:** When `--auto` flag is present, all user interaction is skipped. `--art-only`, `--ui-only`, `--tech-only` flags are ignored (always generates all three specs). Session split suggestions are bypassed (always single pass). Review approval prompt is skipped. Quality gate must-ask items are resolved by AI judgment. The structural quality (traceability, cross-spec consistency, section completeness) is identical to interactive mode.

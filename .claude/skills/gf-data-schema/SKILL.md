@@ -17,7 +17,11 @@ Run:
 ```
 
 - If `project_exists` is `false`: Display "No Game Forge project found. Run `/gf:new-game` to start." **Stop.**
-- Check `stages.system_design` -- if not `complete`: Display "Stage 3A requires system design to be complete. Run `/gf:system-design` first." **Stop.**
+
+**Auto-mode detection:** Check `$ARGUMENTS` for `--auto` flag. Store as `AUTO_MODE` (true/false). When `AUTO_MODE` is true, all user interaction is skipped and the entire data schema stage runs in a single autonomous pass.
+
+- Check `stages.system_design` -- if not `complete` **and NOT `AUTO_MODE`**: Display "Stage 3A requires system design to be complete. Run `/gf:system-design` first." **Stop.**
+  - **If `AUTO_MODE`:** Skip prerequisite check (the auto pipeline just completed system design stage).
 
 Load configuration:
 ```
@@ -27,6 +31,8 @@ Load configuration:
 Store as `LANGUAGE`.
 
 ## Step 1.5: Determine Session Granularity
+
+**If `AUTO_MODE`:** Skip session granularity calculation and split prompt entirely. Auto mode always uses a single pass regardless of system count. Proceed directly to Step 2.
 
 Run:
 ```
@@ -50,6 +56,10 @@ Run:
 ```
 
 **If frozen (`frozen: true`):**
+
+**If `AUTO_MODE` and frozen:** Display: "Schema already frozen (auto mode). Skipping to completion." Skip to Step 7 (display progress) and complete.
+
+**If NOT `AUTO_MODE` and frozen:**
 Display: "Schema is frozen for balance work. To modify, you must unfreeze first (this invalidates any balance work done on the frozen schema). Unfreeze? [y/N]"
 - If user says yes: Run `node bin/gf-tools.cjs data-schema unfreeze`
 - If no: Display current schema summary and run `node bin/gf-tools.cjs progress full`. **Stop.**
@@ -66,6 +76,8 @@ Also check if `.gf/stages/03a-data-schema/REVIEW.md` exists (quality gate alread
 ```
 
 ## Step 3: Branch Based on State
+
+**If `AUTO_MODE`:** Always take the Generate path (Step 4), then automatically continue through Review (Step 5) and Freeze (Step 6) without stopping. The entire generate-review-freeze pipeline runs in one pass.
 
 Determine which flow to follow based on current state:
 
@@ -220,10 +232,18 @@ Run the data schema quality gate.
 - NEVER auto-fill must-ask decisions (table merging, compound encoding, cascade rules, archive scope)
 - Write REVIEW.md to .gf/stages/03a-data-schema/REVIEW.md
 - After auto-fixes: run data-schema export-csv to resync CSV files
+{IF AUTO_MODE:}
+**AUTO MODE:** For must-ask items, use AI best judgment instead of flagging for user decision. Apply your recommendation directly. Log what you decided in REVIEW.md under a new 'Auto-Resolved Decisions' section.
+{END IF}
 ```
 
 ### 5d. After Quality Gate
 
+**If `AUTO_MODE`:**
+- Skip presenting REVIEW.md to user. Skip collecting user decisions.
+- Proceed directly to Step 6 (freeze gate).
+
+**If NOT `AUTO_MODE`:**
 Read and display `.gf/stages/03a-data-schema/REVIEW.md` contents to the user.
 
 **If REVIEW.md has "Needs User Decision" items:**
@@ -240,6 +260,17 @@ Show progress:
 ```
 
 ## Step 6: Freeze Gate
+
+**If `AUTO_MODE`:**
+- Skip the freeze summary display and confirmation prompt.
+- Auto-confirm freeze. Run freeze command, update state, commit.
+- Run freeze: `!`node bin/gf-tools.cjs data-schema freeze``
+- Update state to complete: `!`node bin/gf-tools.cjs state update data_schema complete``
+- Commit schema files: `!`node bin/gf-tools.cjs commit "feat(data-schema): freeze schema v1" --files .gf/stages/03a-data-schema/``
+- Display: "Data schema frozen (auto mode). Proceeding to next stage..."
+- Skip to Step 7.
+
+**If NOT `AUTO_MODE`:**
 
 Display freeze summary by reading schema files:
 - Count tables, total fields, relationships, enum definitions, CSV files
@@ -308,3 +339,4 @@ These rules are locked decisions and must never be violated:
 - **Explicit freeze confirmation:** User must explicitly confirm before schema is frozen. Freeze locks structure; defaults/ranges/sample values remain adjustable.
 - **Sample data is "not balanced":** Values are structural placeholders for validation only. Stage 3B fills real tuned values.
 - **6-layer table architecture:** Every table classified into one of: core_config, constants, probability, i18n, progress, periodic_rewards per table-layers.md.
+- **Auto mode:** When `--auto` flag is present, all user interaction is skipped. Session split prompts are bypassed (always single pass). Quality gate must-ask items are resolved by AI judgment. Freeze is auto-confirmed without user prompt. The structural quality (traceability, field completeness, layer classification) is identical to interactive mode.

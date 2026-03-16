@@ -17,14 +17,19 @@ Run:
 ```
 
 - If `project_exists` is `false`: Display "No Game Forge project found. Run `/gf:new-game` to start." **Stop.**
-- Check `stages.data_schema` -- if not `complete`: Display "Stage 3B requires data schema to be complete (frozen). Run `/gf:data-schema` first." **Stop.**
+
+**Auto-mode detection:** Check `$ARGUMENTS` for `--auto` flag. Store as `AUTO_MODE` (true/false). When `AUTO_MODE` is true, all user interaction is skipped and the entire balance stage runs in a single autonomous pass.
+
+- Check `stages.data_schema` -- if not `complete` **and NOT `AUTO_MODE`**: Display "Stage 3B requires data schema to be complete (frozen). Run `/gf:data-schema` first." **Stop.**
+  - **If `AUTO_MODE`:** Skip prerequisite check (the auto pipeline just completed data schema stage).
 
 Check freeze status:
 ```
 !`node bin/gf-tools.cjs data-schema freeze-status`
 ```
 
-- If `frozen` is `false`: Display "Stage 3B requires a frozen schema. Run `/gf:data-schema` and freeze your schema first." **Stop.**
+- If `frozen` is `false` **and NOT `AUTO_MODE`**: Display "Stage 3B requires a frozen schema. Run `/gf:data-schema` and freeze your schema first." **Stop.**
+  - **If `AUTO_MODE`:** Skip freeze check (the auto pipeline just froze the schema).
 
 Load configuration:
 ```
@@ -35,6 +40,8 @@ Load configuration:
 Store as `LANGUAGE` and `GENRE`.
 
 ## Step 1.5: Determine Session Granularity
+
+**If `AUTO_MODE`:** Skip session granularity calculation and split prompt entirely. Auto mode always uses a single pass regardless of system count. Proceed directly to Step 2.
 
 Run:
 ```
@@ -56,6 +63,8 @@ Run:
 ```
 !`node bin/gf-tools.cjs balance status`
 ```
+
+**If `AUTO_MODE`:** Always take the Generate path (not_started -> Step 3), then automatically continue through Review (Step 5) and Complete (Step 6) without stopping. The entire generate-review-complete pipeline runs in one pass.
 
 Branch based on the returned `status` value:
 
@@ -171,6 +180,9 @@ Read and display a brief summary of what was generated:
 - Count balance files in `.gf/stages/03b-balance/` (difficulty.md, economy.md, monetization.md, tuning.md)
 - List which files exist and their status from frontmatter
 
+**If `AUTO_MODE`:** Skip the "review and approve" prompt. Proceed directly to Step 5b (extract 7B inputs for quality gate).
+
+**If NOT `AUTO_MODE`:**
 Ask user: "Review the balance documentation and approve to run the quality gate, or request specific adjustments."
 - If user requests adjustments: note the feedback, re-run the generator (Step 4) with the feedback added to the agent prompt
 - If user approves (or says "continue", "approve", "ok", "yes"): proceed to Step 5b
@@ -214,10 +226,18 @@ Run the balance quality gate.
 - Run self-check validation from tuning.md Section 4
 - Write REVIEW.md to .gf/stages/03b-balance/REVIEW.md
 - After auto-fixes: run balance validate-freeze to confirm schema integrity
+{IF AUTO_MODE:}
+**AUTO MODE:** For must-ask items, use AI best judgment instead of flagging for user decision. Apply your recommendation directly. Log what you decided in REVIEW.md under a new 'Auto-Resolved Decisions' section.
+{END IF}
 ```
 
 ### 5d. After Quality Gate
 
+**If `AUTO_MODE`:**
+- Skip presenting REVIEW.md to user. Skip collecting user decisions.
+- Proceed directly to Step 6 (mark complete).
+
+**If NOT `AUTO_MODE`:**
 Read and display `.gf/stages/03b-balance/REVIEW.md` contents to the user.
 
 **If REVIEW.md has "Needs User Decision" items:**
@@ -258,6 +278,10 @@ If `intact` is `false`: Display "WARNING: Schema structure has been modified dur
 !`node bin/gf-tools.cjs commit "feat(balance): complete Stage 3B numerical balance" --files .gf/stages/03b-balance/ .gf/stages/03a-data-schema/configs/`
 ```
 
+**If `AUTO_MODE`:**
+Display: "Balance stage complete (auto mode). Proceeding to next stage..."
+
+**If NOT `AUTO_MODE`:**
 Display: "Stage 3B Numerical Balance complete. Run `/gf:production` for Stage 4."
 
 ## Step 7: Display Progress
@@ -280,3 +304,4 @@ These rules are locked decisions and must never be violated:
 - **7B Category 8 exclusion:** No-go zones from 7B Category 8 define problems that must NOT be solved by tuning numbers. The balance generator skips these entirely.
 - **State-driven 3-way branching:** Orchestrator uses balance status to determine flow: generate (not_started), review (in_progress), complete (complete). Each invocation picks up where the previous left off.
 - **Freeze verification at completion:** Before marking balance complete, verify freeze integrity via `node bin/gf-tools.cjs balance validate-freeze`. If schema structure was modified, completion is blocked.
+- **Auto mode:** When `--auto` flag is present, all user interaction is skipped. Session split prompts are bypassed (always single pass). Review approval prompt is skipped. Quality gate must-ask items are resolved by AI judgment. The structural quality (traceability, freeze integrity, economy validation) is identical to interactive mode.
