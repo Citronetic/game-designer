@@ -12,8 +12,8 @@ Generate balanced numerical values from your system designs' 7B inputs and the f
 ## Step 1: Load Project State and Check Prerequisites
 
 Run:
-```
-!`node bin/gf-tools.cjs init progress`
+```bash
+node bin/gf-tools.cjs init progress
 ```
 
 - If `project_exists` is `false`: Display "No Game Forge project found. Run `/gf:new-game` to start." **Stop.**
@@ -24,17 +24,17 @@ Run:
   - **If `AUTO_MODE`:** Skip prerequisite check (the auto pipeline just completed data schema stage).
 
 Check freeze status:
-```
-!`node bin/gf-tools.cjs data-schema freeze-status`
+```bash
+node bin/gf-tools.cjs data-schema freeze-status
 ```
 
 - If `frozen` is `false` **and NOT `AUTO_MODE`**: Display "Stage 3B requires a frozen schema. Run `/gf:data-schema` and freeze your schema first." **Stop.**
   - **If `AUTO_MODE`:** Skip freeze check (the auto pipeline just froze the schema).
 
 Load configuration:
-```
-!`node bin/gf-tools.cjs config-get language`
-!`node bin/gf-tools.cjs config-get genre`
+```bash
+node bin/gf-tools.cjs config-get language
+node bin/gf-tools.cjs config-get genre
 ```
 
 Store as `LANGUAGE` and `GENRE`.
@@ -44,8 +44,8 @@ Store as `LANGUAGE` and `GENRE`.
 **If `AUTO_MODE`:** Skip session granularity calculation and split prompt entirely. Auto mode always uses a single pass regardless of system count. Proceed directly to Step 2.
 
 Run:
-```
-!`node bin/gf-tools.cjs system-design system-status`
+```bash
+node bin/gf-tools.cjs system-design system-status
 ```
 
 Count confirmed systems from the response.
@@ -60,8 +60,8 @@ Adjust generation strategy:
 ## Step 2: Detect State and Branch
 
 Run:
-```
-!`node bin/gf-tools.cjs balance status`
+```bash
+node bin/gf-tools.cjs balance status
 ```
 
 **If `AUTO_MODE`:** Always take the Generate path (not_started -> Step 3), then automatically continue through Review (Step 5) and Complete (Step 6) without stopping. The entire generate-review-complete pipeline runs in one pass.
@@ -80,8 +80,8 @@ Branch based on the returned `status` value:
 ### 3a. Extract 7B Inputs
 
 Run:
-```
-!`node bin/gf-tools.cjs balance extract-7b`
+```bash
+node bin/gf-tools.cjs balance extract-7b
 ```
 
 Parse the JSON response. Display summary:
@@ -159,15 +159,15 @@ You are generating complete numerical balance documentation and updating CSV con
 After the agent completes:
 
 Update balance status to in_progress:
-```
-!`node bin/gf-tools.cjs state patch balance_status in_progress`
+```bash
+node bin/gf-tools.cjs state patch balance_status in_progress
 ```
 
 Display: "Balance documentation generated with **4 balance files** and CSV value updates. Review the output, then run `/gf:balance` again to validate with the quality gate."
 
 Show progress:
-```
-!`node bin/gf-tools.cjs progress full`
+```bash
+node bin/gf-tools.cjs progress full
 ```
 
 ## Step 5: Review and Quality Gate
@@ -189,8 +189,8 @@ Ask user: "Review the balance documentation and approve to run the quality gate,
 
 ### 5b. Extract 7B Inputs for Traceability
 
-```
-!`node bin/gf-tools.cjs balance extract-7b`
+```bash
+node bin/gf-tools.cjs balance extract-7b
 ```
 
 ### 5c. Spawn Quality Reviewer Agent
@@ -250,8 +250,8 @@ Read and display `.gf/stages/03b-balance/REVIEW.md` contents to the user.
 - Go to **Step 6**.
 
 Show progress:
-```
-!`node bin/gf-tools.cjs progress full`
+```bash
+node bin/gf-tools.cjs progress full
 ```
 
 ## Step 6: Mark Complete and Verify
@@ -259,23 +259,23 @@ Show progress:
 ### 6a. Verify Freeze Integrity
 
 Run freeze integrity check:
-```
-!`node bin/gf-tools.cjs balance validate-freeze`
+```bash
+node bin/gf-tools.cjs balance validate-freeze
 ```
 
 If `intact` is `false`: Display "WARNING: Schema structure has been modified during balance work. This must be resolved before completion." **Stop.**
 
 ### 6b. Update State
 
-```
-!`node bin/gf-tools.cjs state patch balance_status complete`
-!`node bin/gf-tools.cjs state update balance complete`
+```bash
+node bin/gf-tools.cjs state patch balance_status complete
+node bin/gf-tools.cjs state update balance complete
 ```
 
 ### 6c. Commit Balance Files
 
-```
-!`node bin/gf-tools.cjs commit "feat(balance): complete Stage 3B numerical balance" --files .gf/stages/03b-balance/ .gf/stages/03a-data-schema/configs/`
+```bash
+node bin/gf-tools.cjs commit "feat(balance): complete Stage 3B numerical balance" --files .gf/stages/03b-balance/ .gf/stages/03a-data-schema/configs/
 ```
 
 **If `AUTO_MODE`:**
@@ -286,8 +286,8 @@ Display: "Stage 3B Numerical Balance complete. Run `/gf:production` for Stage 4.
 
 ## Step 7: Display Progress
 
-```
-!`node bin/gf-tools.cjs progress full`
+```bash
+node bin/gf-tools.cjs progress full
 ```
 
 ## Constraints
