@@ -419,25 +419,127 @@ Display: "[5/5] Production specs complete."
 
 ### Step 10: Auto Pipeline Summary
 
-Display a summary of what was generated:
+Build a dynamic, data-driven summary by scanning the actual generated files and extracting autonomous decisions.
+
+#### 10a: Scan generated files per stage
+
+Count the actual files generated in each stage using Bash commands:
+
+```
+!`ls .gf/stages/01-concept/ch*.md 2>/dev/null | wc -l`
+```
+Store the result as `concept_count`.
+
+```
+!`ls .gf/stages/02-system-design/systems/*.md 2>/dev/null | wc -l`
+```
+Store the result as `system_count`. Note: this may include CONTENT-RHYTHM.md if it is inside systems/. If CONTENT-RHYTHM.md is inside systems/, subtract 1 from the count.
+
+Check for content rhythm:
+```
+!`[ -f .gf/stages/02-system-design/CONTENT-RHYTHM.md ] && echo "yes" || echo "no"`
+```
+Store as `has_content_rhythm`.
+
+```
+!`ls .gf/stages/03a-data-schema/*.md 2>/dev/null | wc -l`
+```
+Store as `schema_count`.
+
+```
+!`ls .gf/stages/03a-data-schema/configs/*.csv 2>/dev/null | wc -l`
+```
+Store as `csv_count`.
+
+```
+!`ls .gf/stages/03b-balance/*.md 2>/dev/null | wc -l`
+```
+Store as `balance_count`.
+
+Check production specs:
+```
+!`[ -f .gf/stages/04-production/ART-SPEC.md ] && echo "yes" || echo "no"`
+!`[ -f .gf/stages/04-production/UI-SPEC.md ] && echo "yes" || echo "no"`
+!`[ -f .gf/stages/04-production/TECH-SPEC.md ] && echo "yes" || echo "no"`
+```
+Count how many of these 3 exist. Store as `production_count`.
+
+Check for video analysis:
+```
+!`[ -f .gf/VIDEO-ANALYSIS.md ] && echo "yes" || echo "no"`
+```
+Store as `has_video_analysis`.
+
+#### 10b: Compute total document count
+
+Sum all counts: `concept_count + system_count + (1 if has_content_rhythm) + schema_count + csv_count + balance_count + production_count + (1 if has_video_analysis)`. Store as `total_count`.
+
+#### 10c: Read project config
+
+Read `.gf/config.json` and extract: `name`, `genre`, `language`, `platform`, `monetization`, `entry_path`. These are the decisions the AI made autonomously during initial setup (Step 2).
+
+#### 10d: Extract autonomous decisions from REVIEW.md files
+
+For each of these stage directories, check if a REVIEW.md file exists and read it if so:
+- `.gf/stages/01-concept/REVIEW.md`
+- `.gf/stages/02-system-design/REVIEW.md`
+- `.gf/stages/03a-data-schema/REVIEW.md`
+- `.gf/stages/03b-balance/REVIEW.md`
+- `.gf/stages/04-production/REVIEW.md`
+
+For each REVIEW.md that exists, look for the "Auto-Resolved Decisions" section and extract its contents. Collect all decisions grouped by stage name.
+
+#### 10e: Display the summary
+
+Display the following, substituting actual values:
 
 > **Auto pipeline complete!**
 >
-> **Generated files:**
-> - `.gf/stages/01-concept/` -- concept chapters
-> - `.gf/stages/02-system-design/systems/` -- system designs + CONTENT-RHYTHM.md
-> - `.gf/stages/03a-data-schema/` -- schema files + configs/ CSV files
-> - `.gf/stages/03b-balance/` -- balance documents
-> - `.gf/stages/04-production/` -- ART-SPEC.md, UI-SPEC.md, TECH-SPEC.md
+> **Project:** {name} ({genre}, {platform}, {monetization})
+> **Language:** {language}
+> **Total documents:** {total_count}
 >
-> **Review any stage output and re-run interactively if adjustments are needed:**
-> - `/gf:concept` -- revisit concept chapters
-> - `/gf:system-design` -- revisit system designs
-> - `/gf:data-schema` -- revisit data schema
-> - `/gf:balance` -- revisit balance values
+> **Generated files by stage:**
+> | Stage | Files | Details |
+> |-------|-------|---------|
+> | Concept | {concept_count} chapters | .gf/stages/01-concept/ |
+> | System Design | {system_count} systems + content rhythm | .gf/stages/02-system-design/ |
+> | Data Schema | {schema_count} schema files + {csv_count} CSV configs | .gf/stages/03a-data-schema/ |
+> | Balance | {balance_count} docs | .gf/stages/03b-balance/ |
+> | Production | {production_count} specs (art, UI, tech) | .gf/stages/04-production/ |
+>
+> **Autonomous decisions:**
+> {For each stage that had Auto-Resolved Decisions in its REVIEW.md, display them as bullet points grouped by stage. Example:}
+> *Concept:*
+> - {decision 1}
+> - {decision 2}
+> *System Design:*
+> - {decision 1}
+> {If no REVIEW.md files had Auto-Resolved Decisions, display: "No auto-resolved decisions logged."}
+>
+> **Setup decisions (from config.json):**
+> - Genre: {genre}
+> - Language: {language}
+> - Platform: {platform}
+> - Monetization: {monetization}
+> - Entry path: {entry_path}
+>
+> **Review or adjust any stage interactively:**
+> - `/gf:concept` -- revisit concept (re-run quality gate, regenerate chapters)
+> - `/gf:system-design` -- revisit systems (re-run quality gate, add/redesign systems)
+> - `/gf:data-schema` -- revisit schema (unfreeze first with `node bin/gf-tools.cjs data-schema unfreeze`)
+> - `/gf:balance` -- revisit balance values (schema must be unfrozen first if re-running data-schema)
 > - `/gf:production` -- revisit production specs
 
+#### 10f: Show progress and commit
+
 Run: `node bin/gf-tools.cjs progress full` to display the progress visualization.
+
+If git tracking is enabled (check `.gf/config.json` field `git_tracking`), add a final git commit of all auto-generated files:
+```
+!`git add .gf/`
+!`git commit -m "feat: auto-generate complete game design documents"`
+```
 
 ## Error Handling
 
